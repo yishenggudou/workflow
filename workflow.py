@@ -50,6 +50,7 @@ def workflow(options):
     cache_filename = options.cache or os.path.join(folder,'workflow.cache')
     data = shelve.open(cache_filename)
     config, config_mt = load_config(config_filename,data)
+    print 'config:',config
     processes = {}
     while config:
         pause = True
@@ -63,7 +64,9 @@ def workflow(options):
                 if key in data: del data[key]
             os.unlink(clear)
         for name,pattern,dt,action,ampersand in config:
+            pattern = os.path.join(os.path.abspath(options.folder),pattern)
             filenames = glob.glob(pattern)
+            print "match files",pattern,filenames
             for filename in filenames:
                 mt = os.path.getmtime(filename)
                 if mt > time.time()-dt: continue
@@ -106,7 +109,7 @@ def main():
     """
     version = "0.1"
     parser = optparse.OptionParser(usage, None, optparse.Option, version)
-    parser.add_option("-s", "--sleep", dest="sleep", default=1,
+    parser.add_option("-s", "--sleep", dest="sleep", default=1,type=float,
                       help="sleep interval")
     parser.add_option("-c", "--clear", dest="clear", default=None,
                       help="clear rule")
